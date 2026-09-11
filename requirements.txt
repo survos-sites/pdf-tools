@@ -1,12 +1,4 @@
-fastapi==0.115.6
-uvicorn[standard]==0.34.0
-httpx==0.28.1
+-r requirements-read.txt
 ocrmypdf>=17.4
 pikepdf>=10,<11
 img2pdf>=0.5
-pymupdf>=1.26,<2
-numpy==2.2.3
-opencv-python-headless==4.11.0.86
-pillow==11.1.0
-pytesseract==0.3.13
-boto3>=1.35,<2

@@ -12,10 +12,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY requirements*.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Dokku sets PORT env var
-CMD uvicorn app:app --host 0.0.0.0 --port ${PORT:-5000}
+ENV PORT=5000
+EXPOSE 5000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=4)"
+CMD exec uvicorn app:app --host 0.0.0.0 --port ${PORT:-5000}
