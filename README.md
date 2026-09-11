@@ -4,6 +4,14 @@ Local PDF inspection, text/word extraction, page images and IIIF for Harvest.
 The repository directory remains `pdf-to-ocr`. Existing OCR/materialization routes
 are retained. This milestone is local service integration, not a production deployment.
 
+## Detailed documentation
+
+- [Architecture and ownership](docs/architecture.md): identity, revisions, cache lifecycle, concurrency and recovery.
+- [API integration guide](docs/api-guide.md): HTTP/S3 registration, page operations, errors, coordinates, IIIF and Harvest.
+- [Release readiness](docs/release-readiness.md): dependency audit, recommended GitHub Actions and remaining Dokku work.
+- [Symfony packaging and API discussion](docs/symfony-api-design.md): existing ai-workflow integration, proposed PDF client/bundle and precise OpenAI compatibility boundaries.
+- [Recorded validation](docs/validation-2026-09-11.md): real archive and eight-document benchmark results.
+
 ## Start and use from Harvest
 
 Python 3.12 or newer:
