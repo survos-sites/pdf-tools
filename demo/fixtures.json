@@ -1,0 +1,63 @@
+{
+  "reference": "https://pymupdf.readthedocs.io/en/latest/app4.html#appendix4-files-used",
+  "downloadMirror": "https://github.com/mara004/PyMuPDF-performance",
+  "note": "Community mirror; benchmark revisions may differ from current documentation. Download only on request, never commit PDFs.",
+  "files": [
+    {
+      "name": "DB-Systems.pdf",
+      "url": "https://raw.githubusercontent.com/mara004/PyMuPDF-performance/master/DB-Systems.pdf",
+      "bytes": 29326355,
+      "sha256": "0a3fb8306f91a34ea48d4bc52730bb61a2b7817b745ee74469e20dc79f1fd5a8",
+      "pages": 1241
+    },
+    {
+      "name": "PyMuPDF.pdf",
+      "url": "https://raw.githubusercontent.com/mara004/PyMuPDF-performance/master/PyMuPDF.pdf",
+      "bytes": 6805176,
+      "sha256": "8b2d639f52f6b316e99853d3342c9202c0f9bde77de874ce8ea70f9d113f3ab9",
+      "pages": 478
+    },
+    {
+      "name": "adobe.pdf",
+      "url": "https://raw.githubusercontent.com/mara004/PyMuPDF-performance/master/adobe.pdf",
+      "bytes": 32472771,
+      "sha256": "3377f6eae9d1bc117c8c47b32ea3177c4a36875d4581345a2ca5705315c60b68",
+      "pages": 1310
+    },
+    {
+      "name": "artifex-website.pdf",
+      "url": "https://raw.githubusercontent.com/mara004/PyMuPDF-performance/master/artifex-website.pdf",
+      "bytes": 31570732,
+      "sha256": "4083bdddf0445760cf531900f09d09d6385f7daafdcc05b8473938c4bc0f60fe",
+      "pages": 47
+    },
+    {
+      "name": "fontforge.pdf",
+      "url": "https://raw.githubusercontent.com/mara004/PyMuPDF-performance/master/fontforge.pdf",
+      "bytes": 8222384,
+      "sha256": "a4124c71199f3c7d53e96c57721d965f46a4fde56303fb2b7daa26fe89d1f118",
+      "pages": 214
+    },
+    {
+      "name": "pandas.pdf",
+      "url": "https://raw.githubusercontent.com/mara004/PyMuPDF-performance/master/pandas.pdf",
+      "bytes": 10585962,
+      "sha256": "ec9dcefb42ec8faaff9e70aaa933865b760c3d7c31dbcc4c77ab1362a6929264",
+      "pages": 3071
+    },
+    {
+      "name": "pythonbook.pdf",
+      "url": "https://raw.githubusercontent.com/mara004/PyMuPDF-performance/master/pythonbook.pdf",
+      "bytes": 9983856,
+      "sha256": "bc9376d6cdd4627e97b2b1d769ae89ebf1e508a72ab02731545491acdd0aa686",
+      "pages": 669
+    },
+    {
+      "name": "sample-50-MB-pdf-file.pdf",
+      "url": "https://raw.githubusercontent.com/mara004/PyMuPDF-performance/master/sample-50-MB-pdf-file.pdf",
+      "bytes": 52521850,
+      "sha256": "54703339d746a7405ce6db2f292fe0238ba45f8bb9fccd0f382e972948c54d43",
+      "pages": 1
+    }
+  ]
+}

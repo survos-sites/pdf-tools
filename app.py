@@ -2,17 +2,17 @@ import os
 import hashlib
 import tempfile
 import httpx
-import img2pdf
-import fitz  # PyMuPDF
-import ocrmypdf
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import FileResponse, JSONResponse, Response
+from fastapi.responses import FileResponse, Response
 from pathlib import Path
 from pydantic import BaseModel, Field
+from pdf_tools.api import install
 
-app = FastAPI(title="PDF to OCR Service")
+app = FastAPI(title="PDF Tools")
+install(app)
 
-CACHE_DIR = Path(tempfile.mkdtemp())
+CACHE_DIR = Path(os.environ.get("CACHE_DIR", ".cache/pdf-tools")) / "legacy-ocr"
+CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 
 class MaterializeRequest(BaseModel):
@@ -56,6 +56,10 @@ def _download_file(url: str, dest_path: Path, kind: str) -> None:
 
 def _ensure_ocr(url: str) -> Path:
     """Download + OCR a PDF. Returns path to searchable PDF."""
+    try:
+        import ocrmypdf
+    except ImportError:
+        raise HTTPException(503, "Install requirements.txt to enable OCR operations")
     key = _cache_key(url)
     ocr_path = CACHE_DIR / f"{key}_ocr.pdf"
     if ocr_path.exists():
@@ -85,6 +89,10 @@ def index():
     return {
         "status": "ok",
         "endpoints": {
+            "/demo/": "OpenSeadragon reading room",
+            "/v1/files": "Register HTTP/S3 sources",
+            "/v1/capabilities": "Installed optional engines",
+            "/iiif/3/{id}/manifest.json": "IIIF Presentation 3 manifest",
             "/ocr?url=": "Returns searchable PDF",
             "POST /materialize": "Builds a searchable PDF/A from ordered JPG URLs",
             "/text?url=": "Returns JSON with per-page text",
@@ -98,7 +106,7 @@ def index():
 def health():
     return {
         "status": "ok",
-        "service": "pdf-to-ocr",
+        "service": "pdf-tools",
         "cache_dir": str(CACHE_DIR),
     }
 
@@ -117,6 +125,14 @@ def ocr_pdf(url: str = Query(..., description="URL of PDF to OCR")):
 @app.post("/materialize")
 def materialize_pdfa(payload: MaterializeRequest):
     """Build a PDF/A from ordered JPG URLs, then OCR it into a searchable PDF."""
+    try:
+        import img2pdf
+    except ImportError:
+        raise HTTPException(503, "Install requirements.txt to enable materialization")
+    try:
+        import ocrmypdf
+    except ImportError:
+        raise HTTPException(503, "Install requirements.txt to enable OCR operations")
     language = payload.language or os.environ.get("OCR_LANGUAGE", "eng")
     temp_dir = Path(tempfile.mkdtemp())
 
@@ -169,58 +185,30 @@ def materialize_pdfa(payload: MaterializeRequest):
 
 @app.get("/text")
 def extract_text(url: str = Query(..., description="URL of PDF")):
-    """OCR if needed, then return extracted text per page as JSON."""
-    ocr_path = _ensure_ocr(url)
-    doc = fitz.open(str(ocr_path))
-    pages = []
-    for i, page in enumerate(doc):
-        text = page.get_text().strip()
-        pages.append({"page": i + 1, "text": text})
-    doc.close()
+    """Compatibility response; reads existing text, never invokes OCR."""
+    from pdf_tools.cache import Source
+    import json
+    info = app.state.register_pdf(Source(url=url))
+    pages = [json.loads(app.state.pdf_operation(info['id'], 'text', page=i)[0])
+             for i in range(1, info['pages']+1)]
+    return {"url": url, "page_count": len(pages), "pages": pages}
 
-    return JSONResponse({
-        "url": url,
-        "page_count": len(pages),
-        "pages": pages,
-    })
+
+def legacy_image(url, page, dpi):
+    from pdf_tools.cache import Source
+    import json
+    info = app.state.register_pdf(Source(url=url))
+    geometry = json.loads(app.state.pdf_operation(info['id'], 'geometry', page=page, nativeDpi=dpi)[0])
+    data, _ = app.state.pdf_operation(info['id'], 'render', page=page, nativeDpi=dpi,
+                                     format='png', quality='default', size=f"{geometry['width']},")
+    return Response(data, media_type='image/png')
 
 
 @app.get("/page-image")
-def page_image(
-    url: str = Query(..., description="URL of PDF"),
-    page: int = Query(1, ge=1, description="Page number (1-based)"),
-    dpi: int = Query(200, ge=72, le=600, description="Resolution"),
-):
-    """Render a single page of the OCR'd PDF as a PNG."""
-    ocr_path = _ensure_ocr(url)
-    doc = fitz.open(str(ocr_path))
-    if page > len(doc):
-        doc.close()
-        raise HTTPException(
-            status_code=404,
-            detail=f"Page {page} not found (PDF has {len(doc)} pages)",
-        )
-    pix = doc[page - 1].get_pixmap(dpi=dpi)
-    png_bytes = pix.tobytes("png")
-    doc.close()
-    return Response(content=png_bytes, media_type="image/png")
+def page_image(url: str, page: int = Query(1, ge=1), dpi: int = Query(200, ge=72, le=600)):
+    return legacy_image(url, page, dpi)
 
 
 @app.get("/thumbnail")
-def thumbnail(
-    url: str = Query(..., description="URL of PDF"),
-    page: int = Query(1, ge=1, description="Page number (1-based)"),
-):
-    """Low-res thumbnail (72 DPI) of a page."""
-    ocr_path = _ensure_ocr(url)
-    doc = fitz.open(str(ocr_path))
-    if page > len(doc):
-        doc.close()
-        raise HTTPException(
-            status_code=404,
-            detail=f"Page {page} not found (PDF has {len(doc)} pages)",
-        )
-    pix = doc[page - 1].get_pixmap(dpi=72)
-    png_bytes = pix.tobytes("png")
-    doc.close()
-    return Response(content=png_bytes, media_type="image/png")
+def thumbnail(url: str, page: int = Query(1, ge=1)):
+    return legacy_image(url, page, 72)

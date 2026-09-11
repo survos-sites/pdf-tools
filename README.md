@@ -1,3 +1,211 @@
+# PDF Tools
+
+Local PDF inspection, text/word extraction, page images and IIIF for Harvest.
+The repository directory remains `pdf-to-ocr`. Existing OCR/materialization routes
+are retained. This milestone is local service integration, not a production deployment.
+
+## Start and use from Harvest
+
+Python 3.12 or newer:
+
+```bash
+./run.sh                     # http://127.0.0.1:5001
+# Or, with dependencies already installed:
+.venv/bin/python -m uvicorn app:app --host 127.0.0.1 --port 5001
+```
+
+The read API requires neither Tesseract nor Ghostscript. `run.sh` installs
+`requirements-read.txt`; install `requirements.txt` for the legacy OCR routes.
+The demo is at http://127.0.0.1:5001/demo/ and OpenAPI is at `/docs`.
+The demo uses OpenSeadragon (pinned CDN dependency), with page navigation,
+existing text, search overlays, word JSON export and a IIIF manifest export.
+Diva.js can consume the same manifest in a later viewer comparison; it is not integrated yet.
+
+In `~/sites/harvest`:
+
+```bash
+php bin/console pdf:inspect \
+  'https://www.marxists.org/history/ussr/culture/soviet-life/full-issues/1961/sim_soviet-life_1961-02_2.pdf' \
+  --page=64 --query=Michurinka
+
+php bin/console pdf:inspect 's3://rappnews/path/issue.pdf' \
+  --source-id=rappnews:issue:asset-1 --revision=2026-09 --page=850
+```
+
+`PDFTOOLS_URL` defaults to `http://127.0.0.1:5001` in Harvest. `PDFTOOLS_TOKEN`
+is optional and must match the Python service when set. Outputs go to
+`var/pdf-tools/{fileId}/`: document info, page info, text, words, optional search
+hits, and PNG. This explicit command does not change normalization or trigger paid
+OCR. The existing cheap `PdfMeta` HTTP-range probe remains intact.
+
+## Responsibilities
+
+Symfony owns catalog identities/provenance, source revisions, Messenger queues,
+retries, retention and durable S3 outputs. Python owns PDF operations, streaming
+source access and a disposable local cache. There is no second durable job queue.
+`PdfToolsClient` is the reusable integration boundary in Harvest.
+
+## Source contract
+
+```json
+{"url":"https://example.org/issue.pdf","sourceId":"rappnews:issue:asset-1","revision":"v1"}
+```
+
+Or direct S3 (using server-side credentials, not credentials in the payload):
+
+```json
+{"s3":{"bucket":"rappnews","key":"path/issue.pdf","versionId":"optional-object-version"},"sourceId":"rappnews:issue:asset-1","revision":"v1"}
+```
+
+POST these to `/v1/files`. Supply exactly one of `url` or `s3`. `sourceId` and
+`revision` must be provided together. `sha256` may optionally assert the expected
+content checksum. The response includes `id`, `sha256`, `bytes`, `pages`, PDF
+`metadata` and `iaIdentifier` when present. Registration does not scan page text.
+
+IDs are 32 hexadecimal characters derived from the explicit identity + revision,
+or the S3 reference / URL when no identity is supplied. Always provide identity
+and revision for presigned URLs: refreshing credentials then preserves the handle.
+Re-register the same identity to update an expired download URL. Credential-bearing
+URLs are stored only in private local source records, not returned by the API.
+
+A handle pins the first validated content checksum. Cached reads use those bytes.
+After eviction, a changed source returns **409**, never silently substitutes a new
+PDF under existing derived URLs. Register a new revision for changed content.
+Automatic ETag/Last-Modified revalidation is deliberately deferred: Symfony owns
+revision discovery for this milestone. A URL-only handle must likewise be replaced
+with an explicit revision when its content changes.
+
+## Read API
+
+All public page numbers are **1-based**; PyMuPDF indexes are 0-based internally.
+Boxes use `[x0,y0,x1,y1]` in displayed PDF points and normalized page coordinates.
+The image crop `region` uses `x,y,width,height`, a different representation.
+
+| Route | Result |
+|---|---|
+| `GET /v1/capabilities` | Installed core/optional packages and OCR executables |
+| `POST /v1/files` | Register/fetch HTTP or S3 source |
+| `GET /v1/files/{id}` | Cached document metadata |
+| `GET /v1/files/{id}/pages/{page}` | Size in points/pixels, rotation, word count, text-layer flag |
+| `GET /v1/files/{id}/pages/{page}/text` | Existing page text |
+| `GET /v1/files/{id}/pages/{page}/words` | Words with point and normalized boxes |
+| `GET /v1/files/{id}/pages/{page}/search?q=…` | Hit rectangles |
+| `GET /v1/files/{id}/pages/{page}/image.png?width=1200&region=full` | Page/crop; also jpg/webp |
+| `GET /v1/files/{id}/toc` | Existing PDF bookmarks |
+| `GET /iiif/3/{id}~{page}/info.json` | IIIF Image API 3 service description |
+| `GET /iiif/3/{id}~{page}/{region}/{size}/0/{quality}.{format}` | IIIF region rendering |
+| `GET /iiif/3/{id}/manifest.json` | Presentation 3 manifest, one Canvas per page |
+
+Regions: `full`, `square`, `x,y,w,h`, `pct:x,y,w,h`. IIIF numeric regions are in
+canvas pixels. Sizes: `max`, `w,`, `,h`, `w,h`, `!w,h`, `pct:n`. Only rotation `0`;
+qualities `default` and `gray`; formats jpg/png/webp. Pixel limits still apply to
+`max`. Canvas geometry uses configurable 300 DPI, including for embedded scans;
+native embedded-image DPI detection is deferred. The facade advertises level1;
+it is exercised with OpenSeadragon but not externally conformance-certified.
+
+OpenSeadragon setup:
+
+```js
+OpenSeadragon({id: 'viewer', tileSources: '/iiif/3/FILE_ID~64/info.json'});
+```
+
+For an authenticated service, provide `ajaxHeaders: {Authorization: 'Bearer …'}`
+and `loadTilesWithAjax: true`. Do not put bearer tokens in URLs. The demo accepts
+an in-memory token; it is not saved in browser storage.
+
+## Local cache and concurrency
+
+Sources stream into `.part` files with incremental size checks and SHA-256.
+Successful files are renamed atomically; abandoned partial files are removed on
+the next cache lease. Restarts reuse complete downloads and derivatives. Interrupted
+downloads restart from byte zero; HTTP Range resume is not yet implemented.
+
+The byte cache covers source PDFs and JSON/image derivatives, with least-recently-used
+mtime eviction. Source handle records survive byte eviction; Symfony can re-register
+if the entire cache is discarded. Derived artifacts use the content checksum,
+operation version and parameters, so two revisions cannot collide. A derivative hit
+can be served even if source bytes have been evicted. Responses have content ETags
+and conservative `private, max-age=0, must-revalidate` headers. Immutable public CDN
+URLs, HMAC read URLs and S3 derivative write-through are future work.
+
+**Initial throughput limit:** a cross-process cache lease serializes downloads and
+cache-miss processing across this cache directory. It protects active files from
+eviction and prevents duplicate concurrent downloads. PyMuPDF runs in one spawned
+process, not FastAPI's thread pool. Documents are opened per operation; no unsafe
+shared document LRU. A manifest scans page geometry once, without text extraction.
+This prioritizes a correct local integration over tile throughput during large
+new downloads. Separate per-source leases, process resource limits and cancellation
+are needed before production/large parallel ingest. Output pixel limits do not
+bound every internal allocation of a complex PDF.
+
+## Configuration
+
+| Variable | Default / meaning |
+|---|---|
+| `PORT` | `5001` in local run.sh; Docker remains configurable |
+| `CACHE_DIR` | `.cache/pdf-tools` (persistent, private local directory) |
+| `PDFTOOLS_CACHE_BYTES` | 2 GiB total source/derivative byte budget |
+| `PDFTOOLS_MAX_SOURCE_BYTES` | 512 MiB per source |
+| `PDFTOOLS_MAX_PIXELS` | 20,000,000 pixels per image; max dimension 16,000 |
+| `PDFTOOLS_NATIVE_DPI` | 300 for IIIF canvas space |
+| `PDFTOOLS_TOKEN` | Optional bearer token for API and IIIF; unset for loopback demo |
+| `PDFTOOLS_CORS_ORIGINS` | `*`; comma-separated origins |
+| `PDFTOOLS_SOURCE_HOSTS` | Optional comma-separated HTTP source host allowlist |
+| `PDFTOOLS_ALLOW_PRIVATE_SOURCES` | Off; `1` only for local fixtures/internal trusted sources |
+| `PDFTOOLS_S3_BUCKETS` | Required comma-separated allowed S3 buckets |
+| `S3_ENDPOINT` | Optional S3-compatible endpoint; omitted for AWS |
+| `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, `AWS_DEFAULT_REGION` | Standard boto3 credential/config chain |
+
+HTTP redirects are checked and private destination addresses rejected by default.
+The DNS check is not a replacement for outbound network isolation against rebinding.
+Keep the initial service on loopback/trusted networks. For private S3 collections,
+configure a token before sharing service access; registered IDs are not credentials.
+Source records and legacy OCR output are outside the disposable byte budget.
+Legacy OCR routes retain their prior synchronous behavior and independent cache.
+
+## Optional engines
+
+[Upstream optional extras](https://github.com/pymupdf/PyMuPDF#optional-extras):
+
+- `pymupdf4llm`: structured Markdown/JSON for RAG; evaluate on periodical reading order.
+- `pymupdf-fonts`: extended fonts for future inserted text / multilingual output.
+- `pymupdfpro`: Office input support, outside this PDF milestone; requires its own licensing setup.
+- Tesseract: already installed locally; used explicitly for OCR, never on read requests.
+
+PyMuPDF's upstream license is AGPL-3.0, with commercial licensing available from
+Artifex. No repository license has been added or changed. A public repository alone
+should not be treated as a complete license-compliance determination.
+
+## Tests and benchmark documents
+
+```bash
+.venv/bin/python -m pip install -r requirements-dev.txt
+.venv/bin/python -m pytest -q
+.venv/bin/python scripts/benchmark.py   # opt-in ~182 MB downloads via running API
+```
+
+The offline suite generates a 1,001-page PDF and checks page 1,000, search/geometry,
+IIIF crops, concurrency, eviction/refetch, changed content, size limits, partial
+cleanup, invalid sources and S3 version selection (botocore stub, no cloud account).
+`demo/fixtures.json` records all eight files from the
+[PyMuPDF benchmark reference](https://pymupdf.readthedocs.io/en/latest/app4.html#appendix4-files-used).
+The accessible download location is a community mirror, explicitly identified in
+that manifest; PDFs are not redistributed in this repository. The script checks
+sizes and records downloaded checksums, page counts, last-page words and two render
+timings in ignored `work/benchmark.json`. Network fixtures are opt-in, not required
+for offline tests. RappNews S3 end-to-end validation awaits the incoming bucket.
+
+## Next milestones
+
+- Wire `PdfToolsClient` into the selected Harvest/Messenger acquisition workflow.
+- S3 write outputs, page-range jobs, progress/recovery, bookmarks and text-layer jobs.
+- HMAC/public cache contracts and concurrent download/render leases.
+- Viewer comparison with Diva.js; registered-source management and expiry.
+
+---
+
+## Legacy OCR service reference
+
 # PDF-to-OCR Microservice
 
 A FastAPI service that accepts a PDF URL, runs OCRmyPDF with Tesseract, and
@@ -15,8 +223,8 @@ supports materializing an ordered list of JPG scans into a searchable PDF/A.
 | `GET /thumbnail?url=...&page=1` | PNG thumbnail (72 DPI) | Browse/preview UI |
 
 All endpoints accept a `url` parameter pointing to a PDF (e.g. an S3
-presigned URL). The PDF is downloaded once, OCR'd once, and cached — so
-calling `/text` after `/ocr` for the same URL is nearly instant.
+presigned URL). Read endpoints use the source PDF directly and never trigger OCR.
+Only `/ocr` invokes OCR and caches its result.
 
 `POST /materialize` is different: it accepts a JSON payload with an ordered
 list of JPG URLs, downloads them into a temporary working directory, assembles
