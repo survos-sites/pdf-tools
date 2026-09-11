@@ -1,8 +1,8 @@
 # Dependencies, CI and Dokku readiness
 
-Assessment date: 2026-09-11. Publishing source to GitHub is appropriate; public
-production deployment has outstanding work. This document does not record a
-completed dependency upgrade, container build or deployment.
+Initial assessment: 2026-09-11. The service has since been deployed; see
+[production deployment and validation](production.md) for current status. The
+audit and remaining recommendations below describe the original readiness review.
 
 ## Dependency audit
 

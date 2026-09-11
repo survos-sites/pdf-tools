@@ -1,3 +1,8 @@
+# Production
+
+PDF Tools is deployed at https://pdf-tools.survos.com with bearer authentication.
+See [production configuration, validation and updates](docs/production.md).
+
 # PDF Tools
 
 Local PDF inspection, text/word extraction, page images and IIIF for Harvest.

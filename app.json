@@ -1,0 +1,5 @@
+{
+  "healthchecks": {
+    "web": [{"type": "startup", "name": "pdf-tools-ready", "path": "/health", "port": 5000, "attempts": 6, "timeout": 5, "wait": 5}]
+  }
+}

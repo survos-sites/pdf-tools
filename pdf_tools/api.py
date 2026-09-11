@@ -148,7 +148,7 @@ def install(app: FastAPI):
         data, _ = operation(file_id, 'geometry', page=page)
         geometry = json.loads(data)
         return {'@context': 'http://iiif.io/api/image/3/context.json',
-                'id': str(request.base_url).rstrip('/')+f'/iiif/3/{file_id}~{page}',
+                'id': os.getenv('PDFTOOLS_PUBLIC_URL', str(request.base_url)).rstrip('/')+f'/iiif/3/{file_id}~{page}',
                 'type': 'ImageService3', 'protocol': 'http://iiif.io/api/image', 'profile': 'level1',
                 **geometry, 'maxArea': int(os.getenv('PDFTOOLS_MAX_PIXELS', '20000000')),
                 'tiles': [{'width': 512, 'scaleFactors': [1,2,4,8,16,32,64,128]}],
@@ -165,7 +165,7 @@ def install(app: FastAPI):
     @app.get('/iiif/3/{file_id}/manifest.json')
     def manifest(file_id: str, request: Request):
         info = files_get(file_id)
-        base = str(request.base_url).rstrip('/')
+        base = os.getenv('PDFTOOLS_PUBLIC_URL', str(request.base_url)).rstrip('/')
         mid = f'{base}/iiif/3/{file_id}/manifest.json'
         items = []
         data, _ = operation(file_id, 'geometries')

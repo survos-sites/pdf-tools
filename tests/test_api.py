@@ -157,3 +157,13 @@ def test_byte_budget_and_partial_recovery(client):
     response = client.get(f'/v1/files/{file_id}/pages/1/image.png')
     assert response.status_code == 507
     assert sum(p.stat().st_size for p in (cache.root/'bytes').iterdir()) <= cache.max_bytes
+
+
+def test_canonical_https_iiif_urls_behind_proxy(client, monkeypatch):
+    monkeypatch.setenv('PDFTOOLS_PUBLIC_URL', 'https://pdf-tools.survos.com/')
+    file_id = register(client)
+    info = client.get(f'/iiif/3/{file_id}~1/info.json').json()
+    assert info['id'] == f'https://pdf-tools.survos.com/iiif/3/{file_id}~1'
+    manifest = client.get(f'/iiif/3/{file_id}/manifest.json').json()
+    assert manifest['id'].startswith('https://pdf-tools.survos.com/')
+    assert 'http://testserver' not in json.dumps(manifest)
