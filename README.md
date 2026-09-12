@@ -6,8 +6,9 @@ See [production configuration, validation and updates](docs/production.md).
 # PDF Tools
 
 Local PDF inspection, text/word extraction, page images and IIIF for Harvest.
-The repository directory remains `pdf-to-ocr`. Existing OCR/materialization routes
-are retained. This milestone is local service integration, not a production deployment.
+The repository, local checkout, and deployed app are named `pdf-tools`. It began
+as `pdf-to-ocr`; existing OCR/materialization routes are retained alongside the
+PyMuPDF read and rendering API. See the production guide above for the live service.
 
 ## Detailed documentation
 
@@ -266,67 +267,19 @@ conversion dominate latency on larger jobs.
 
 ## Deploy to Dokku
 
-### 1. Create the app
-
-```bash
-ssh dokku@your-server apps:create pdf-to-ocr
-```
-
-### 2. Set the domain
-
-```bash
-ssh dokku@your-server domains:set pdf-to-ocr pdftoocr.survos.com
-```
-
-### 3. Configure language support (optional)
-
-```bash
-ssh dokku@your-server config:set pdf-to-ocr OCR_LANGUAGE=eng+spa
-```
-
-### 4. Push to deploy
-
-Dokku auto-detects the Dockerfile and builds from it.
-
-```bash
-cd pdf-to-ocr
-git init
-git add .
-git commit -m "initial"
-git remote add dokku dokku@your-server:pdf-to-ocr
-git push dokku main
-```
-
-### 5. Enable HTTPS
-
-```bash
-ssh dokku@your-server letsencrypt:enable pdf-to-ocr
-```
-
-### 6. Increase timeouts for large PDFs
-
-```bash
-ssh dokku@your-server nginx:set pdf-to-ocr proxy-read-timeout 300s
-ssh dokku@your-server nginx:set pdf-to-ocr proxy-send-timeout 300s
-ssh dokku@your-server ps:rebuild pdf-to-ocr
-```
-
-### 7. Increase body size limit (if uploading large PDFs later)
-
-```bash
-ssh dokku@your-server nginx:set pdf-to-ocr client-max-body-size 50m
-ssh dokku@your-server ps:rebuild pdf-to-ocr
-```
+Use the [production deployment guide](docs/production.md) for the existing
+`pdf-tools` app on fsn1. The examples below document the retained legacy API;
+production requests require `Authorization: Bearer $PDFTOOLS_TOKEN`.
 
 ## Usage Examples
 
 ```bash
 # Get a searchable PDF back
-curl -o result.pdf "https://pdftoocr.survos.com/ocr?url=https://example.com/scan.pdf"
+curl -o result.pdf "https://pdf-tools.survos.com/ocr?url=https://example.com/scan.pdf"
 
 # Build a searchable PDF/A from ordered JPG scans
 curl \
-  -X POST "https://pdftoocr.survos.com/materialize" \
+  -X POST "https://pdf-tools.survos.com/materialize" \
   -H "Content-Type: application/json" \
   -o materialized.pdf \
   -d '{
@@ -341,13 +294,13 @@ curl \
   }'
 
 # Get extracted text as JSON (for Meilisearch indexing)
-curl "https://pdftoocr.survos.com/text?url=https://example.com/scan.pdf"
+curl "https://pdf-tools.survos.com/text?url=https://example.com/scan.pdf"
 
 # Get page 3 as a high-res PNG
-curl -o page3.png "https://pdftoocr.survos.com/page-image?url=https://example.com/scan.pdf&page=3&dpi=300"
+curl -o page3.png "https://pdf-tools.survos.com/page-image?url=https://example.com/scan.pdf&page=3&dpi=300"
 
 # Get a thumbnail of the first page
-curl -o thumb.png "https://pdftoocr.survos.com/thumbnail?url=https://example.com/scan.pdf"
+curl -o thumb.png "https://pdf-tools.survos.com/thumbnail?url=https://example.com/scan.pdf"
 ```
 
 ## Response format for /text

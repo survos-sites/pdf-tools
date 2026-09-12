@@ -28,7 +28,7 @@ S3 credentials/bucket allowlists have not been configured on this new app. HTTP(
 
 ## Deploying updates
 
-`git push dokku main` builds the Dockerfile and runs Dokku startup checks. The remote is dokku@fsn1.survos.com:pdf-tools. GitHub source is survos-sites/pdf-to-ocr; service and repository names intentionally differ.
+`git push dokku main` builds the Dockerfile and runs Dokku startup checks. The remote is dokku@fsn1.survos.com:pdf-tools. GitHub source is survos-sites/pdf-tools; the service, repository and local checkout now share the same name.
 
 requirements-production.txt records the exact Python versions resolved in the tested Linux image and is the Docker installation input. requirements-read.txt and requirements.txt remain development dependency inputs. Refresh the production snapshot in a Linux container, run pip check and smoke tests, and commit it together with dependency changes. Existing FastAPI/Uvicorn pins have not been upgraded by this deployment; the earlier dependency audit remains a follow-up. No GitHub Actions deployment workflow was added.
 

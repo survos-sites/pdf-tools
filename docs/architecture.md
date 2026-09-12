@@ -1,8 +1,8 @@
 # Architecture and ownership
 
 Status: implemented local read milestone, 2026-09-11. Proposed extensions are
-explicitly identified. The Python repository is still named `pdf-to-ocr`; the
-service and demo call themselves PDF Tools.
+explicitly identified. The Python repository, checkout and Dokku app are named `pdf-tools`.
+It began as `pdf-to-ocr` and grew to include the PyMuPDF read API.
 
 ## Intended consumers
 
