@@ -95,3 +95,7 @@ php scripts/check_integration.php
 Use a fresh `PDFTOOLS_ANALYSIS_DIR` for cold timings; preserve the original benchmark file when measuring cache replay. Gold excerpts and manually traced boundaries live in `benchmarks/newspaper/`. Excerpt scoring is lowercase NFKC with collapsed whitespace, retains punctuation and printed line-break hyphens, and penalizes missed/duplicate text in native reading order. It is a six-excerpt smoke test, not publication-grade OCR accuracy. All eight pages are from one issue because only that issue's 30 scans were already cached; broader acquisition remains Harvest's job.
 
 Run `scripts/check_analysis_recovery.py /absolute/path/page-0001.jp2` with the configured runtime for a real one-second timeout followed by retry and a new-service cache hit. Its `recovery-cache` must be fresh. `scripts/score_newspaper_boundaries.py` consumes the benchmark and the offline matched `existing-structure.json` snapshot; it measures eight manually traced page-2 targets, not whole-page mAP or complete article recall.
+
+## Research closeout
+
+For the production decision, explicit non-deliverables, remaining integration work and portable evidence replay, start with the [closeout handoff](research/newspaper-pilot/handoff.md). This local setup is optional evaluation infrastructure; the chosen production direction is professional services through Mediary.
