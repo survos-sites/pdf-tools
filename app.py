@@ -108,6 +108,7 @@ def health():
         "status": "ok",
         "service": "pdf-tools",
         "cache_dir": str(CACHE_DIR),
+        "analysis": app.state.analysis.capabilities(),
     }
 
 

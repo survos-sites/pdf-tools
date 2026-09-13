@@ -13,12 +13,18 @@ from fastapi.staticfiles import StaticFiles
 
 from .cache import Cache, Source
 from .engine import execute
+from .analysis import AnalysisService, AnalysisRequest, PageLayoutRequest, PageOcrRequest
+import tempfile
+import io
+from PIL import Image
+from .analysis import digest
 
 
 def install(app: FastAPI):
     @asynccontextmanager
     async def lifespan(app):
         app.state.cache = Cache()
+        app.state.analysis = AnalysisService()
         # PyMuPDF must not run in the server's thread pool or share open Documents.
         with ProcessPoolExecutor(max_workers=1, mp_context=multiprocessing.get_context('spawn')) as pool:
             app.state.pdf_pool = pool
@@ -98,6 +104,59 @@ def install(app: FastAPI):
     app.state.register_pdf = register
     app.state.pdf_operation = operation
 
+    @app.get('/v1/analysis/capabilities')
+    def analysis_capabilities():
+        return app.state.analysis.capabilities()
+
+    @app.post('/v1/analysis', summary='Analyze an allowlisted local scan; synchronous, idempotent')
+    def analyze_scan(body: AnalysisRequest):
+        result, cached = app.state.analysis.analyze(body)
+        return JSONResponse(result, headers={'X-Cache': 'HIT' if cached else 'MISS', 'Location': '/v1/results/'+result['resultId']})
+
+    @app.get('/v1/results/{result_id}')
+    def analysis_result(result_id: str):
+        return app.state.analysis.get(result_id)
+
+    @app.get('/v1/results/{result_id}/image.jpg')
+    def analysis_preview(result_id: str):
+        app.state.analysis.get(result_id)  # Validate ID and existing result before constructing paths.
+        source_file = app.state.analysis.root/f'{result_id}.source.json'
+        if not source_file.is_file(): raise HTTPException(404, 'No retained local scan reference; use PDF page image API')
+        source = json.loads(source_file.read_text())
+        path = app.state.analysis.allowed(source['path'])
+        if digest(path) != source['sha256']: raise HTTPException(409, 'Original scan changed')
+        with Image.open(path) as im:
+            im.thumbnail((1800,2400)); out = io.BytesIO(); im.convert('RGB').save(out,format='JPEG',quality=88)
+        return Response(out.getvalue(),media_type='image/jpeg')
+
+    @app.get('/v1/results/{result_id}/status')
+    def analysis_status(result_id: str):
+        return app.state.analysis.get(result_id, status=True)
+
+    def analyze_pdf_page(file_id, page, body, ocr=False):
+        # Render completes under the PDF lease; model execution happens after it is released.
+        info = json.loads(operation(file_id, 'page', page=page)[0])
+        data = operation(file_id, 'render', page=page, format='png', quality='default', size=f'{body.width},')[0]
+        with tempfile.TemporaryDirectory(prefix='pdf-page-') as tmp:
+            path = Path(tmp)/'page.png'; path.write_bytes(data)
+            tasks = ['layout'] if not ocr else (['layout','ocr','group'] if body.layout else ['ocr'])
+            request = AnalysisRequest(imagePath=str(path), sha256=hashlib.sha256(data).hexdigest(),
+                textSource='tesseract' if ocr else 'none', tasks=tasks, threshold=body.threshold,
+                language=body.language if ocr else 'eng', regionOcr=ocr and body.layout)
+            result, cached = app.state.analysis.analyze(request, trusted=True)
+        result = {**result, 'pdf': {'fileId': file_id, 'page': page, 'widthPt': info['widthPt'],
+                   'heightPt': info['heightPt'], 'rotation': info['rotation'],
+                   'coordinateNote': 'Boxes are in the rendered input image; normalized boxes map to displayed PDF/IIIF.'}}
+        return JSONResponse(result, headers={'X-Cache': 'HIT' if cached else 'MISS'})
+
+    @app.post('/v1/files/{file_id}/pages/{page}/layout')
+    def page_layout(file_id: str, page: int, body: PageLayoutRequest):
+        return analyze_pdf_page(file_id, page, body)
+
+    @app.post('/v1/files/{file_id}/pages/{page}/ocr')
+    def page_ocr(file_id: str, page: int, body: PageOcrRequest):
+        return analyze_pdf_page(file_id, page, body, ocr=True)
+
     @app.get('/v1/capabilities')
     def capabilities():
         import importlib.metadata
@@ -133,7 +192,7 @@ def install(app: FastAPI):
 
     @app.get('/v1/files/{file_id}/pages/{page}/{kind}')
     def page_data(file_id: str, page: int, kind: str, request: Request, q: str = Query('', max_length=500)):
-        if kind not in ('words', 'text', 'search'):
+        if kind not in ('words', 'text', 'search', 'blocks'):
             raise HTTPException(404, 'Unknown page operation')
         if kind == 'search' and not q.strip():
             raise HTTPException(422, 'Search requires q')

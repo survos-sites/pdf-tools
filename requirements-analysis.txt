@@ -1,0 +1,4 @@
+# CPU runtime measured on Apple M4 Pro; model pinned separately in setup script.
+pillow==12.3.0
+numpy==2.5.3
+onnxruntime==1.30.0

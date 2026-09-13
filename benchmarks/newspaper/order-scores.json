@@ -1,0 +1,220 @@
+{
+  "page": 2,
+  "previewDimensions": [
+    1200,
+    1681
+  ],
+  "anchors": {
+    "coal-head": [
+      44,
+      87,
+      324,
+      52
+    ],
+    "coal-deck": [
+      45,
+      145,
+      160,
+      42
+    ],
+    "coal-body-start": [
+      44,
+      201,
+      160,
+      40
+    ],
+    "coal-second-column": [
+      210,
+      145,
+      158,
+      42
+    ],
+    "photo-head": [
+      380,
+      94,
+      300,
+      27
+    ],
+    "photo-caption": [
+      375,
+      562,
+      302,
+      22
+    ],
+    "stolen-head": [
+      534,
+      897,
+      158,
+      32
+    ],
+    "stolen-body": [
+      536,
+      984,
+      154,
+      98
+    ]
+  },
+  "pairs": [
+    {
+      "mode": "alto",
+      "before": "coal-head",
+      "after": "coal-deck",
+      "firstWordIndexA": 2,
+      "firstWordIndexB": 7,
+      "pass": true
+    },
+    {
+      "mode": "alto",
+      "before": "coal-deck",
+      "after": "coal-body-start",
+      "firstWordIndexA": 7,
+      "firstWordIndexB": 19,
+      "pass": true
+    },
+    {
+      "mode": "alto",
+      "before": "coal-body-start",
+      "after": "coal-second-column",
+      "firstWordIndexA": 19,
+      "firstWordIndexB": 704,
+      "pass": true
+    },
+    {
+      "mode": "alto",
+      "before": "photo-head",
+      "after": "photo-caption",
+      "firstWordIndexA": 1952,
+      "firstWordIndexB": 1317,
+      "pass": false
+    },
+    {
+      "mode": "alto",
+      "before": "stolen-head",
+      "after": "stolen-body",
+      "firstWordIndexA": 2157,
+      "firstWordIndexB": 2176,
+      "pass": true
+    },
+    {
+      "mode": "alto-layout",
+      "before": "coal-head",
+      "after": "coal-deck",
+      "firstWordIndexA": 2,
+      "firstWordIndexB": 7,
+      "pass": true
+    },
+    {
+      "mode": "alto-layout",
+      "before": "coal-deck",
+      "after": "coal-body-start",
+      "firstWordIndexA": 7,
+      "firstWordIndexB": 19,
+      "pass": true
+    },
+    {
+      "mode": "alto-layout",
+      "before": "coal-body-start",
+      "after": "coal-second-column",
+      "firstWordIndexA": 19,
+      "firstWordIndexB": 704,
+      "pass": true
+    },
+    {
+      "mode": "alto-layout",
+      "before": "photo-head",
+      "after": "photo-caption",
+      "firstWordIndexA": 1952,
+      "firstWordIndexB": 1317,
+      "pass": false
+    },
+    {
+      "mode": "alto-layout",
+      "before": "stolen-head",
+      "after": "stolen-body",
+      "firstWordIndexA": 2157,
+      "firstWordIndexB": 2176,
+      "pass": true
+    },
+    {
+      "mode": "tesseract",
+      "before": "coal-head",
+      "after": "coal-deck",
+      "firstWordIndexA": 7,
+      "firstWordIndexB": 26,
+      "pass": true
+    },
+    {
+      "mode": "tesseract",
+      "before": "coal-deck",
+      "after": "coal-body-start",
+      "firstWordIndexA": 26,
+      "firstWordIndexB": 49,
+      "pass": true
+    },
+    {
+      "mode": "tesseract",
+      "before": "coal-body-start",
+      "after": "coal-second-column",
+      "firstWordIndexA": 49,
+      "firstWordIndexB": 13,
+      "pass": false
+    },
+    {
+      "mode": "tesseract",
+      "before": "photo-head",
+      "after": "photo-caption",
+      "firstWordIndexA": null,
+      "firstWordIndexB": 925,
+      "pass": false
+    },
+    {
+      "mode": "tesseract",
+      "before": "stolen-head",
+      "after": "stolen-body",
+      "firstWordIndexA": 2553,
+      "firstWordIndexB": 2568,
+      "pass": true
+    },
+    {
+      "mode": "region-ocr",
+      "before": "coal-head",
+      "after": "coal-deck",
+      "firstWordIndexA": 9,
+      "firstWordIndexB": 255,
+      "pass": true
+    },
+    {
+      "mode": "region-ocr",
+      "before": "coal-deck",
+      "after": "coal-body-start",
+      "firstWordIndexA": 255,
+      "firstWordIndexB": 439,
+      "pass": true
+    },
+    {
+      "mode": "region-ocr",
+      "before": "coal-body-start",
+      "after": "coal-second-column",
+      "firstWordIndexA": 439,
+      "firstWordIndexB": 267,
+      "pass": false
+    },
+    {
+      "mode": "region-ocr",
+      "before": "photo-head",
+      "after": "photo-caption",
+      "firstWordIndexA": 19,
+      "firstWordIndexB": 1332,
+      "pass": true
+    },
+    {
+      "mode": "region-ocr",
+      "before": "stolen-head",
+      "after": "stolen-body",
+      "firstWordIndexA": 2544,
+      "firstWordIndexB": 2660,
+      "pass": true
+    }
+  ],
+  "limitations": "Five anchor pairs on one page; noisy recognized marks may count as anchor presence. Does not establish full page reading order. Continued article links are absent in every local result and existing page-scoped structure claims."
+}

@@ -78,6 +78,18 @@ def execute(path, operation, params):
         if number < 1 or number > doc.page_count:
             raise IndexError(f'Page {number} not found (PDF has {doc.page_count} pages)')
         page = doc[number-1]  # Public API is 1-based; PyMuPDF is 0-based.
+        if operation == 'blocks':
+            blocks = []
+            for b in page.get_text('dict', flags=fitz.TEXTFLAGS_DICT & ~fitz.TEXT_PRESERVE_IMAGES)['blocks']:
+                if b['type'] != 0: continue
+                r = fitz.Rect(b['bbox']) * page.rotation_matrix
+                lines = [{'text': ''.join(s['text'] for s in l['spans']),
+                          'spans': [{'text': s['text'], 'font': s['font'], 'size': s['size'], 'flags': s['flags']} for s in l['spans']]}
+                         for l in b['lines']]
+                blocks.append({'id': f"b{b['number']}", 'type': 'text', 'textSource': 'embedded-pdf',
+                               'text': '\n'.join(l['text'] for l in lines), 'lines': lines, 'bboxPt': list(r),
+                               'bboxNormalized': [r.x0/page.rect.width,r.y0/page.rect.height,r.x1/page.rect.width,r.y1/page.rect.height]})
+            return {'page': number, 'blocks': blocks, 'readingOrderBasis': 'pdf-extraction-order-unreviewed'}
         if operation in ('page', 'words', 'text', 'search'):
             # Report boxes in displayed page coordinates, including PDF rotation.
             def box(rect):

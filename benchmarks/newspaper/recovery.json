@@ -1,0 +1,18 @@
+{
+  "timeoutStatus": {
+    "resultId": "a39479a27776f668bc9c403df35a14a88b1607ca6a3f9e94c42b52682edaccd8",
+    "status": "failed",
+    "attempt": 1,
+    "error": "Page analysis timed out; lower complexity or increase PDFTOOLS_ANALYSIS_TIMEOUT"
+  },
+  "timeoutWallSeconds": 1.0607825000188313,
+  "retryStatus": {
+    "resultId": "a39479a27776f668bc9c403df35a14a88b1607ca6a3f9e94c42b52682edaccd8",
+    "status": "completed",
+    "attempt": 2
+  },
+  "sameResultIdAfterRetry": true,
+  "restartCacheHit": true,
+  "restartCacheSeconds": 0.06510637499741279,
+  "ocrWords": 3528
+}

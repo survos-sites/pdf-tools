@@ -1,0 +1,14 @@
+{
+ "method":"Single-reviewer rectangular outer bounds traced from page-2.jpg (1200 by 1681 preview), scaled to original scan dimensions. Eight bounded items; target recall only, not page-wide precision/mAP. Illustration includes its headline, photograph and caption. Article continuation links require separate evaluation.",
+ "page":2,"previewWidth":1200,"previewHeight":1681,
+ "regions":[
+  {"label":"Lynch clothing advertisement","kind":"advertisement","box":[858,94,317,550]},
+  {"label":"Simmons plumbing advertisement","kind":"advertisement","box":[860,644,314,171]},
+  {"label":"Empire National Bank advertisement","kind":"advertisement","box":[855,811,316,299]},
+  {"label":"Highland shoes advertisement","kind":"advertisement","box":[854,1112,320,511]},
+  {"label":"Lee and Parr stove advertisement","kind":"advertisement","box":[43,1265,324,345]},
+  {"label":"British bread line illustration and caption","kind":"illustration_caption","box":[372,94,312,495]},
+  {"label":"Coal Stolen article","kind":"article","box":[534,897,158,195]},
+  {"label":"American Trooper article","kind":"article","box":[692,897,163,218]}
+ ]
+}

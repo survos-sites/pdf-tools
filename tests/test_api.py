@@ -167,3 +167,15 @@ def test_canonical_https_iiif_urls_behind_proxy(client, monkeypatch):
     manifest = client.get(f'/iiif/3/{file_id}/manifest.json').json()
     assert manifest['id'].startswith('https://pdf-tools.survos.com/')
     assert 'http://testserver' not in json.dumps(manifest)
+
+
+def test_blocks_preserve_geometry_and_openapi(client):
+    file_id=register(client)
+    result=client.get(f'/v1/files/{file_id}/pages/1/blocks').json()
+    assert result['blocks'][0]['text']=='Archive page 1 Michurinka'
+    assert result['blocks'][0]['textSource']=='embedded-pdf'
+    assert all(0<=v<=1 for v in result['blocks'][0]['bboxNormalized'])
+    schema=client.get('/openapi.json').json()
+    assert '/v1/analysis' in schema['paths']
+    assert '/v1/files/{file_id}/pages/{page}/layout' in schema['paths']
+    assert schema['paths']['/v1/analysis']['post']['requestBody']
