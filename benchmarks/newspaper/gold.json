@@ -1,0 +1,12 @@
+{
+  "issue": "sn85059732-1914-11-29-ed-1",
+  "method": "Single-reviewer manual transcription from original scan crops; six small excerpts, not a representative accuracy corpus. Original-image pixel xywh crop selection, word centers retained in engine order.",
+  "zones": [
+    {"page":1,"box":[0,850,650,390],"kind":"damaged headline/deck","text":"Russia Warns Public to Take Reports from Poland with Grain of Salt. GERMANS CLAIM CHECK Battle is Resumed in Western Poland with Germans on Offensive."},
+    {"page":2,"box":[3500,780,630,510],"kind":"advertisement heading","text":"New Coats and Suits Have Just Arrived Come soon and let us show you these new designs. IT IS NOT AN EASY TASK"},
+    {"page":4,"box":[220,940,1030,120],"kind":"dense editorial notice","text":"CHANGE OF ADDRESS. When changing address, give old as well as new address. All communications must be signed, or receive no attention whatever."},
+    {"page":12,"box":[3000,1390,1040,340],"kind":"advertisement body","text":"We are showing the newest, snappiest, most up-to-the-minute line of GENTS’ FURNISHINGS from the skin outward at this season of the year, than any other store in either Clarksburg or Wes- ton. We are not going to argue with you, but ask you to come in and look over our line and then you can be convinced of our claims."},
+    {"page":19,"box":[690,1050,570,125],"kind":"small classified","text":"FOR SALE—No. 6 New Century type- writer. No. 3 Oliver typewriter. Good condition. Price $15.00 each to quick buyer. Bell phone, or write Wm. L. Grow, Clarksburg, W. Va."},
+    {"page":25,"box":[110,240,3930,270],"kind":"illustrated feature headline","text":"How the Tallest Town In The World Was Built"}
+  ]
+}

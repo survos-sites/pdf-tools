@@ -431,3 +431,10 @@ Example shape:
 
 That path would require a different implementation than `ocrmypdf.ocr()`,
 because OCRmyPDF expects to run OCR itself rather than consume precomputed text.
+
+## Newspaper OCR and layout pilot
+
+[Local analysis setup, APIs, geometry, Mediary adapter and benchmark instructions](docs/newspaper-analysis.md).
+The page-operation service can preserve supplied ALTO, detect newspaper regions, or explicitly run local Tesseract OCR. Candidate regions/groups remain unreviewed; Mediary retains orchestration and durable claims.
+
+[Newspaper feasibility study, grant brief and archived benchmark evidence](docs/research/newspaper-pilot/README.md).

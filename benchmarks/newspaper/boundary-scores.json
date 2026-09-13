@@ -1,0 +1,1109 @@
+{
+  "method": "Single-reviewer rectangular outer bounds traced from page-2.jpg (1200 by 1681 preview), scaled to original scan dimensions. Eight bounded items; target recall only, not page-wide precision/mAP. Illustration includes its headline, photograph and caption. Article continuation links require separate evaluation.",
+  "rows": [
+    {
+      "target": "Lynch clothing advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3012.295,
+        330.034503271862,
+        1112.9341666666667,
+        1931.0529446757882
+      ],
+      "source": "alto",
+      "best": {
+        "label": "BLOCK29",
+        "kind": "text",
+        "box": [
+          3020.0,
+          1555.0,
+          1173.25,
+          677.25
+        ]
+      },
+      "iou": 0.3409784084124946,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Lynch clothing advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3012.295,
+        330.034503271862,
+        1112.9341666666667,
+        1931.0529446757882
+      ],
+      "source": "tesseract",
+      "best": {
+        "label": "t-b200-p1",
+        "kind": "text",
+        "box": [
+          3502,
+          1815,
+          602,
+          125
+        ]
+      },
+      "iou": 0.035014090325085505,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Lynch clothing advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3012.295,
+        330.034503271862,
+        1112.9341666666667,
+        1931.0529446757882
+      ],
+      "source": "alto-layout-groups",
+      "best": {
+        "label": "g-r6",
+        "kind": "uncertain",
+        "box": [
+          3005.0,
+          920.0,
+          1203.25,
+          1312.25
+        ]
+      },
+      "iou": 0.6440353369424052,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Lynch clothing advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3012.295,
+        330.034503271862,
+        1112.9341666666667,
+        1931.0529446757882
+      ],
+      "source": "region-ocr-groups",
+      "best": {
+        "label": "g-r6",
+        "kind": "uncertain",
+        "box": [
+          3032,
+          366,
+          1088,
+          1850
+        ]
+      },
+      "iou": 0.936562936961224,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Lynch clothing advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3012.295,
+        330.034503271862,
+        1112.9341666666667,
+        1931.0529446757882
+      ],
+      "source": "local-detections",
+      "best": {
+        "label": "r6",
+        "kind": "cartoon_or_advertisement",
+        "box": [
+          3030.1441268420062,
+          362.4245702981949,
+          1089.0742021890387,
+          1853.8541717290877
+        ]
+      },
+      "iou": 0.9394407243626162,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Lynch clothing advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3012.295,
+        330.034503271862,
+        1112.9341666666667,
+        1931.0529446757882
+      ],
+      "source": "existing-mistral-structure",
+      "best": {
+        "label": "Unclear or Mixed Content",
+        "kind": "uncertain",
+        "box": [
+          3020.0,
+          1555.0,
+          1173.25,
+          677.25
+        ]
+      },
+      "iou": 0.3409784084124946,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Simmons plumbing advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3019.3166666666666,
+        2261.08744794765,
+        1102.4016666666666,
+        600.3819155264723
+      ],
+      "source": "alto",
+      "best": {
+        "label": "BLOCK30",
+        "kind": "text",
+        "box": [
+          3016.0,
+          2223.0,
+          1181.25,
+          522.25
+        ]
+      },
+      "iou": 0.7164045348110307,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Simmons plumbing advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3019.3166666666666,
+        2261.08744794765,
+        1102.4016666666666,
+        600.3819155264723
+      ],
+      "source": "tesseract",
+      "best": {
+        "label": "t-b202-p1",
+        "kind": "text",
+        "box": [
+          3554,
+          2499,
+          565,
+          166
+        ]
+      },
+      "iou": 0.14170627193389002,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Simmons plumbing advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3019.3166666666666,
+        2261.08744794765,
+        1102.4016666666666,
+        600.3819155264723
+      ],
+      "source": "alto-layout-groups",
+      "best": {
+        "label": "g-r34",
+        "kind": "uncertain",
+        "box": [
+          3016.0,
+          2223.0,
+          1181.25,
+          522.25
+        ]
+      },
+      "iou": 0.7164045348110307,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Simmons plumbing advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3019.3166666666666,
+        2261.08744794765,
+        1102.4016666666666,
+        600.3819155264723
+      ],
+      "source": "region-ocr-groups",
+      "best": {
+        "label": "g-r34",
+        "kind": "uncertain",
+        "box": [
+          3032,
+          2289,
+          1088,
+          552
+        ]
+      },
+      "iou": 0.9074036248317296,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Simmons plumbing advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3019.3166666666666,
+        2261.08744794765,
+        1102.4016666666666,
+        600.3819155264723
+      ],
+      "source": "local-detections",
+      "best": {
+        "label": "r34",
+        "kind": "cartoon_or_advertisement",
+        "box": [
+          3021.547623715724,
+          2261.57731924057,
+          1103.5112408861291,
+          579.7502490043639
+        ]
+      },
+      "iou": 0.9608699815591586,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Simmons plumbing advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3019.3166666666666,
+        2261.08744794765,
+        1102.4016666666666,
+        600.3819155264723
+      ],
+      "source": "existing-mistral-structure",
+      "best": {
+        "label": "Simmons Water Softening and Scale Removing Devices Advertisement",
+        "kind": "advertisement",
+        "box": [
+          3016.0,
+          2223.0,
+          1181.25,
+          522.25
+        ]
+      },
+      "iou": 0.7164045348110307,
+      "kindAndIoU50": true
+    },
+    {
+      "target": "Empire National Bank advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3001.7625,
+        2847.4253420582986,
+        1109.4233333333334,
+        1049.7906008328375
+      ],
+      "source": "alto",
+      "best": {
+        "label": "BLOCK32",
+        "kind": "text",
+        "box": [
+          3017.0,
+          3155.0,
+          1179.25,
+          616.25
+        ]
+      },
+      "iou": 0.5540230458055092,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Empire National Bank advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3001.7625,
+        2847.4253420582986,
+        1109.4233333333334,
+        1049.7906008328375
+      ],
+      "source": "tesseract",
+      "best": {
+        "label": "t-b204-p1",
+        "kind": "text",
+        "box": [
+          3097,
+          3614,
+          908,
+          204
+        ]
+      },
+      "iou": 0.1590435423762696,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Empire National Bank advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3001.7625,
+        2847.4253420582986,
+        1109.4233333333334,
+        1049.7906008328375
+      ],
+      "source": "alto-layout-groups",
+      "best": {
+        "label": "g-r41",
+        "kind": "uncertain",
+        "box": [
+          3017.0,
+          3155.0,
+          1179.25,
+          616.25
+        ]
+      },
+      "iou": 0.5540230458055092,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Empire National Bank advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3001.7625,
+        2847.4253420582986,
+        1109.4233333333334,
+        1049.7906008328375
+      ],
+      "source": "region-ocr-groups",
+      "best": {
+        "label": "g-r41",
+        "kind": "uncertain",
+        "box": [
+          3059,
+          2999,
+          1022,
+          800
+        ]
+      },
+      "iou": 0.7020061341822041,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Empire National Bank advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3001.7625,
+        2847.4253420582986,
+        1109.4233333333334,
+        1049.7906008328375
+      ],
+      "source": "local-detections",
+      "best": {
+        "label": "r41",
+        "kind": "cartoon_or_advertisement",
+        "box": [
+          3044.7240842322553,
+          2872.5484894752503,
+          1053.9882256906458,
+          973.4250795364378
+        ]
+      },
+      "iou": 0.8809237419040089,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Empire National Bank advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        3001.7625,
+        2847.4253420582986,
+        1109.4233333333334,
+        1049.7906008328375
+      ],
+      "source": "existing-mistral-structure",
+      "best": {
+        "label": "Empire National Bank 'Weekly Savers' Plan Advertisement",
+        "kind": "advertisement",
+        "box": [
+          3017.0,
+          2736.0,
+          1179.25,
+          1035.25
+        ]
+      },
+      "iou": 0.7353432551409184,
+      "kindAndIoU50": true
+    },
+    {
+      "target": "Highland shoes advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        2998.2516666666666,
+        3904.237953599048,
+        1123.4666666666667,
+        1794.123735871505
+      ],
+      "source": "alto",
+      "best": {
+        "label": "BLOCK35",
+        "kind": "text",
+        "box": [
+          3016.0,
+          4768.0,
+          1181.25,
+          561.25
+        ]
+      },
+      "iou": 0.30154288601874213,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Highland shoes advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        2998.2516666666666,
+        3904.237953599048,
+        1123.4666666666667,
+        1794.123735871505
+      ],
+      "source": "tesseract",
+      "best": {
+        "label": "t-b209-p1",
+        "kind": "text",
+        "box": [
+          3045,
+          4898,
+          599,
+          443
+        ]
+      },
+      "iou": 0.13164912149007094,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Highland shoes advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        2998.2516666666666,
+        3904.237953599048,
+        1123.4666666666667,
+        1794.123735871505
+      ],
+      "source": "alto-layout-groups",
+      "best": {
+        "label": "g-r55",
+        "kind": "uncertain",
+        "box": [
+          3016.0,
+          4443.0,
+          1181.25,
+          886.25
+        ]
+      },
+      "iou": 0.47054314463122904,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Highland shoes advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        2998.2516666666666,
+        3904.237953599048,
+        1123.4666666666667,
+        1794.123735871505
+      ],
+      "source": "region-ocr-groups",
+      "best": {
+        "label": "g-r55",
+        "kind": "uncertain",
+        "box": [
+          3030,
+          3925,
+          1081,
+          1751
+        ]
+      },
+      "iou": 0.9390727897857319,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Highland shoes advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        2998.2516666666666,
+        3904.237953599048,
+        1123.4666666666667,
+        1794.123735871505
+      ],
+      "source": "local-detections",
+      "best": {
+        "label": "r55",
+        "kind": "cartoon_or_advertisement",
+        "box": [
+          3030.4417803407496,
+          3925.395447731018,
+          1080.509208695894,
+          1750.421519851685
+        ]
+      },
+      "iou": 0.9383363338626778,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Highland shoes advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        2998.2516666666666,
+        3904.237953599048,
+        1123.4666666666667,
+        1794.123735871505
+      ],
+      "source": "existing-mistral-structure",
+      "best": {
+        "label": "James A. Banister Shoes Advertisement",
+        "kind": "advertisement",
+        "box": [
+          3016.0,
+          4768.0,
+          1181.25,
+          1120.25
+        ]
+      },
+      "iou": 0.4452909067929908,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Lee and Parr stove advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        150.96583333333334,
+        4441.421772754313,
+        1137.51,
+        1211.2968471148126
+      ],
+      "source": "alto",
+      "best": {
+        "label": "BLOCK10",
+        "kind": "text",
+        "box": [
+          725.0,
+          4630.0,
+          586.25,
+          1257.25
+        ]
+      },
+      "iou": 0.3745348371478136,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Lee and Parr stove advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        150.96583333333334,
+        4441.421772754313,
+        1137.51,
+        1211.2968471148126
+      ],
+      "source": "tesseract",
+      "best": {
+        "label": "t-b96-p1",
+        "kind": "text",
+        "box": [
+          152,
+          5336,
+          964,
+          105
+        ]
+      },
+      "iou": 0.07346162364833198,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Lee and Parr stove advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        150.96583333333334,
+        4441.421772754313,
+        1137.51,
+        1211.2968471148126
+      ],
+      "source": "alto-layout-groups",
+      "best": {
+        "label": "g-r6",
+        "kind": "uncertain",
+        "box": [
+          3005.0,
+          920.0,
+          1203.25,
+          1312.25
+        ]
+      },
+      "iou": 0.0,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Lee and Parr stove advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        150.96583333333334,
+        4441.421772754313,
+        1137.51,
+        1211.2968471148126
+      ],
+      "source": "region-ocr-groups",
+      "best": {
+        "label": "g-r64",
+        "kind": "uncertain",
+        "box": [
+          177,
+          4859,
+          1089,
+          781
+        ]
+      },
+      "iou": 0.6172670625125389,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Lee and Parr stove advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        150.96583333333334,
+        4441.421772754313,
+        1137.51,
+        1211.2968471148126
+      ],
+      "source": "local-detections",
+      "best": {
+        "label": "r64",
+        "kind": "cartoon_or_advertisement",
+        "box": [
+          172.18614862888595,
+          4476.431466197968,
+          1093.5732573294274,
+          1163.9710022926329
+        ]
+      },
+      "iou": 0.9238133462733444,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Lee and Parr stove advertisement",
+      "kind": "advertisement",
+      "referenceBox": [
+        150.96583333333334,
+        4441.421772754313,
+        1137.51,
+        1211.2968471148126
+      ],
+      "source": "existing-mistral-structure",
+      "best": {
+        "label": "Parr Heating and Plumbing Advertisement",
+        "kind": "advertisement",
+        "box": [
+          725.0,
+          4630.0,
+          586.25,
+          1257.25
+        ]
+      },
+      "iou": 0.3745348371478136,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "British bread line illustration and caption",
+      "kind": "illustration_caption",
+      "referenceBox": [
+        1306.03,
+        330.034503271862,
+        1095.3799999999999,
+        1737.9476502082096
+      ],
+      "source": "alto",
+      "best": {
+        "label": "BLOCK11",
+        "kind": "text",
+        "box": [
+          1281.0,
+          14.0,
+          582.25,
+          1587.25
+        ]
+      },
+      "iou": 0.3341978888079829,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "British bread line illustration and caption",
+      "kind": "illustration_caption",
+      "referenceBox": [
+        1306.03,
+        330.034503271862,
+        1095.3799999999999,
+        1737.9476502082096
+      ],
+      "source": "tesseract",
+      "best": {
+        "label": "t-b63-p1",
+        "kind": "text",
+        "box": [
+          737,
+          1136,
+          921,
+          1019
+        ]
+      },
+      "iou": 0.13047174563833244,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "British bread line illustration and caption",
+      "kind": "illustration_caption",
+      "referenceBox": [
+        1306.03,
+        330.034503271862,
+        1095.3799999999999,
+        1737.9476502082096
+      ],
+      "source": "alto-layout-groups",
+      "best": {
+        "label": "g-r6",
+        "kind": "uncertain",
+        "box": [
+          3005.0,
+          920.0,
+          1203.25,
+          1312.25
+        ]
+      },
+      "iou": 0.0,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "British bread line illustration and caption",
+      "kind": "illustration_caption",
+      "referenceBox": [
+        1306.03,
+        330.034503271862,
+        1095.3799999999999,
+        1737.9476502082096
+      ],
+      "source": "region-ocr-groups",
+      "best": {
+        "label": "g-r25",
+        "kind": "illustration_caption",
+        "box": [
+          1311,
+          1974,
+          1066,
+          71
+        ]
+      },
+      "iou": 0.039757041182250125,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "British bread line illustration and caption",
+      "kind": "illustration_caption",
+      "referenceBox": [
+        1306.03,
+        330.034503271862,
+        1095.3799999999999,
+        1737.9476502082096
+      ],
+      "source": "local-detections",
+      "best": {
+        "label": "r7",
+        "kind": "photograph",
+        "box": [
+          1340.612508828061,
+          448.68074827194215,
+          1011.1781690334597,
+          1505.5912640571594
+        ]
+      },
+      "iou": 0.7997113745937844,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "British bread line illustration and caption",
+      "kind": "illustration_caption",
+      "referenceBox": [
+        1306.03,
+        330.034503271862,
+        1095.3799999999999,
+        1737.9476502082096
+      ],
+      "source": "existing-mistral-structure",
+      "best": {
+        "label": "Civilian Life Near Front Lines in Jonchery; German Cruiser Sinks Norwegian Ship in Chilean Waters",
+        "kind": "article",
+        "box": [
+          1824.0,
+          1062.0,
+          625.25,
+          2556.25
+        ]
+      },
+      "iou": 0.19884815834654648,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Coal Stolen article",
+      "kind": "article",
+      "referenceBox": [
+        1874.7849999999999,
+        3149.371802498513,
+        554.7116666666667,
+        684.6460440214158
+      ],
+      "source": "alto",
+      "best": {
+        "label": "BLOCK18",
+        "kind": "text",
+        "box": [
+          1840.0,
+          2542.0,
+          593.25,
+          1076.25
+        ]
+      },
+      "iou": 0.3430506970391545,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Coal Stolen article",
+      "kind": "article",
+      "referenceBox": [
+        1874.7849999999999,
+        3149.371802498513,
+        554.7116666666667,
+        684.6460440214158
+      ],
+      "source": "tesseract",
+      "best": {
+        "label": "t-b154-p1",
+        "kind": "text",
+        "box": [
+          1871,
+          3559,
+          564,
+          256
+        ]
+      },
+      "iou": 0.3715893148581377,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Coal Stolen article",
+      "kind": "article",
+      "referenceBox": [
+        1874.7849999999999,
+        3149.371802498513,
+        554.7116666666667,
+        684.6460440214158
+      ],
+      "source": "alto-layout-groups",
+      "best": {
+        "label": "g-r6",
+        "kind": "uncertain",
+        "box": [
+          3005.0,
+          920.0,
+          1203.25,
+          1312.25
+        ]
+      },
+      "iou": 0.0,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Coal Stolen article",
+      "kind": "article",
+      "referenceBox": [
+        1874.7849999999999,
+        3149.371802498513,
+        554.7116666666667,
+        684.6460440214158
+      ],
+      "source": "region-ocr-groups",
+      "best": {
+        "label": "g-r49",
+        "kind": "article",
+        "box": [
+          1871,
+          3470,
+          551,
+          345
+        ]
+      },
+      "iou": 0.49539655852468023,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Coal Stolen article",
+      "kind": "article",
+      "referenceBox": [
+        1874.7849999999999,
+        3149.371802498513,
+        554.7116666666667,
+        684.6460440214158
+      ],
+      "source": "local-detections",
+      "best": {
+        "label": "r49",
+        "kind": "article",
+        "box": [
+          1869.4609073163122,
+          3470.3321645736696,
+          552.708786845468,
+          344.7655155181883
+        ]
+      },
+      "iou": 0.49452594835674,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "Coal Stolen article",
+      "kind": "article",
+      "referenceBox": [
+        1874.7849999999999,
+        3149.371802498513,
+        554.7116666666667,
+        684.6460440214158
+      ],
+      "source": "existing-mistral-structure",
+      "best": {
+        "label": "Civilian Life Near Front Lines in Jonchery; German Cruiser Sinks Norwegian Ship in Chilean Waters",
+        "kind": "article",
+        "box": [
+          1824.0,
+          1062.0,
+          625.25,
+          2556.25
+        ]
+      },
+      "iou": 0.15139382433532672,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "American Trooper article",
+      "kind": "article",
+      "referenceBox": [
+        2429.4966666666664,
+        3149.371802498513,
+        572.2658333333334,
+        765.3991671624034
+      ],
+      "source": "alto",
+      "best": {
+        "label": "BLOCK24",
+        "kind": "text",
+        "box": [
+          2425.0,
+          2866.0,
+          598.25,
+          781.25
+        ]
+      },
+      "iou": 0.459193775241316,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "American Trooper article",
+      "kind": "article",
+      "referenceBox": [
+        2429.4966666666664,
+        3149.371802498513,
+        572.2658333333334,
+        765.3991671624034
+      ],
+      "source": "tesseract",
+      "best": {
+        "label": "t-b175-p1",
+        "kind": "text",
+        "box": [
+          2446,
+          3148,
+          559,
+          218
+        ]
+      },
+      "iou": 0.2739461149118817,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "American Trooper article",
+      "kind": "article",
+      "referenceBox": [
+        2429.4966666666664,
+        3149.371802498513,
+        572.2658333333334,
+        765.3991671624034
+      ],
+      "source": "alto-layout-groups",
+      "best": {
+        "label": "g-r6",
+        "kind": "uncertain",
+        "box": [
+          3005.0,
+          920.0,
+          1203.25,
+          1312.25
+        ]
+      },
+      "iou": 0.0,
+      "kindAndIoU50": false
+    },
+    {
+      "target": "American Trooper article",
+      "kind": "article",
+      "referenceBox": [
+        2429.4966666666664,
+        3149.371802498513,
+        572.2658333333334,
+        765.3991671624034
+      ],
+      "source": "region-ocr-groups",
+      "best": {
+        "label": "g-r50",
+        "kind": "article",
+        "box": [
+          2443,
+          3483,
+          555,
+          404
+        ]
+      },
+      "iou": 0.5119040262798676,
+      "kindAndIoU50": true
+    },
+    {
+      "target": "American Trooper article",
+      "kind": "article",
+      "referenceBox": [
+        2429.4966666666664,
+        3149.371802498513,
+        572.2658333333334,
+        765.3991671624034
+      ],
+      "source": "local-detections",
+      "best": {
+        "label": "r50",
+        "kind": "article",
+        "box": [
+          2439.4299397207715,
+          3475.8498672485352,
+          558.7018065337802,
+          414.8051045417783
+        ]
+      },
+      "iou": 0.5291007351369433,
+      "kindAndIoU50": true
+    },
+    {
+      "target": "American Trooper article",
+      "kind": "article",
+      "referenceBox": [
+        2429.4966666666664,
+        3149.371802498513,
+        572.2658333333334,
+        765.3991671624034
+      ],
+      "source": "existing-mistral-structure",
+      "best": {
+        "label": "Civilian Life Near Front Lines in Jonchery; German Cruiser Sinks Norwegian Ship in Chilean Waters",
+        "kind": "article",
+        "box": [
+          1824.0,
+          1062.0,
+          625.25,
+          2556.25
+        ]
+      },
+      "iou": 0.004569166656893206,
+      "kindAndIoU50": false
+    }
+  ]
+}
