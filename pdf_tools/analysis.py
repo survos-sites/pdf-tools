@@ -151,7 +151,10 @@ class AnalysisService:
         fingerprint={'workerSha256':digest(WORKER),'modelSha256':digest(self.model) if needs_model else None}
         # Resolve actual interpreter/package identity in the isolated environment without importing heavy models.
         try:
-            versions=subprocess.run([self.python,'-c','import importlib.metadata as m,json,sys; print(json.dumps({"python":sys.version,"packages":{p:m.version(p) for p in ["pillow","numpy","onnxruntime"]}}))'],capture_output=True,text=True,check=True,timeout=20)
+            # Plain OCR uses Pillow + Tesseract. Layout's optional model runtime must
+            # not prevent typed PDFs from being transcribed on a lightweight worker.
+            packages=['pillow','numpy','onnxruntime'] if needs_model else ['pillow']
+            versions=subprocess.run([self.python,'-c','import importlib.metadata as m,json,sys; print(json.dumps({"python":sys.version,"packages":{p:m.version(p) for p in json.loads(sys.argv[1])}}))',json.dumps(packages)],capture_output=True,text=True,check=True,timeout=20)
             fingerprint.update(json.loads(versions.stdout))
             if request.textSource=='tesseract':
                 version=subprocess.run(['tesseract','--version'],capture_output=True,text=True,check=True,timeout=10)
