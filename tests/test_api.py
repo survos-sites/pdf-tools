@@ -49,7 +49,7 @@ def test_thousand_pages_and_late_page(client):
     assert client.get(f'/v1/files/{file_id}/pages/1002').status_code == 404
 
 
-def test_iiif(client):
+def test_iiif(client, monkeypatch):
     file_id = register(client)
     base = f'/iiif/3/{file_id}~1000'
     info = client.get(base+'/info.json').json()
@@ -60,6 +60,11 @@ def test_iiif(client):
             assert response.status_code == 200, response.text
             assert Image.open(io.BytesIO(response.content)).mode == 'L'
     assert client.get(base+'/full/16000,16000/0/default.jpg').status_code == 422
+    monkeypatch.setenv('PDFTOOLS_MAX_PIXELS', '1000000')
+    response = client.get(base+'/full/max/0/default.jpg')
+    assert response.status_code == 200, response.text
+    w, h = Image.open(io.BytesIO(response.content)).size
+    assert w*h <= 1_000_000 and abs(w/h - 2500/3334) < 0.01
     assert client.get(base+'/full/nan,/0/default.jpg').status_code == 422
     assert client.get('/iiif/3/'+'a'*32+'~1/info.json').status_code == 404
 
