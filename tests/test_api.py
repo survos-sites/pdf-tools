@@ -119,6 +119,19 @@ def test_auth_and_source_validation(client, monkeypatch):
                        headers={'Authorization':'Bearer secret'}).status_code == 200
 
 
+def test_iiif_reads_are_public_but_writes_are_not(client, monkeypatch):
+    # A viewer fetches info.json and tiles from the browser, so a token guarding
+    # them would have to ship in the page. Reads are public; registration is not,
+    # which is what keeps this service from being asked to fetch arbitrary URLs.
+    file_id = client.post('/v1/files', json={'url':'https://example.org/a.pdf'}).json()['id']
+    monkeypatch.setenv('PDFTOOLS_TOKEN', 'secret')
+
+    assert client.get(f'/iiif/3/{file_id}~1/info.json').status_code == 200
+    assert client.get(f'/iiif/3/{file_id}/manifest.json').status_code == 200
+    assert client.post('/v1/files', json={'url':'https://example.org/a.pdf'}).status_code == 401
+    assert client.get(f'/v1/files/{file_id}/pages/1').status_code == 401
+
+
 def test_rejects_private_sources(tmp_path):
     from fastapi import HTTPException
     cache = Cache(tmp_path)

@@ -33,11 +33,28 @@ def install(app: FastAPI):
     app.add_middleware(CORSMiddleware, allow_origins=os.getenv('PDFTOOLS_CORS_ORIGINS', '*').split(','),
                        allow_methods=['GET', 'POST'], allow_headers=['Authorization', 'Content-Type'])
 
+    def _public_read(path: str, method: str) -> bool:
+        """Paths served without a bearer token.
+
+        IIIF reads are public because a browser has to fetch them directly: a
+        viewer loads info.json and then tiles from the page itself, so any token
+        guarding them would have to be embedded in the HTML, which is not a
+        token any more. Registration (POST /v1/files) stays authenticated, so
+        nothing can ask this service to fetch a URL of its own choosing — the
+        only renderable documents are ones an authenticated caller registered.
+        A file id is 32 hex characters and is only discoverable from a page that
+        already publishes the image.
+        """
+        if path in ('/health', '/demo', '/demo/') or path.startswith('/demo/'):
+            return True
+
+        return method in ('GET', 'HEAD') and path.startswith('/iiif/')
+
     @app.middleware('http')
     async def authentication(request, call_next):
         import secrets
         token = os.getenv('PDFTOOLS_TOKEN')
-        if token and request.method != 'OPTIONS' and request.url.path not in ('/health', '/demo', '/demo/') and not request.url.path.startswith('/demo/'):
+        if token and request.method != 'OPTIONS' and not _public_read(request.url.path, request.method):
             if not secrets.compare_digest(request.headers.get('authorization', ''), f'Bearer {token}'):
                 return JSONResponse({'detail': 'Bearer token required'}, status_code=401)
         return await call_next(request)
