@@ -121,7 +121,10 @@ def install(app: FastAPI):
 
     def reply(file_id, op, request, media='application/json', **params):
         data, etag = operation(file_id, op, **params)
-        headers = {'ETag': f'"{etag}"', 'Cache-Control': 'private, max-age=0, must-revalidate'}
+        # A read is keyed by the source checksum and the request parameters, so a given URL's bytes
+        # never change: cache it hard, in the browser and in front of the service. Purge the CDN if a
+        # source is ever replaced under the same identity (that is what `revision` is for).
+        headers = {'ETag': f'"{etag}"', 'Cache-Control': 'public, max-age=31536000, immutable'}
         if request.headers.get('if-none-match') == headers['ETag']:
             return Response(status_code=304, headers=headers)
         return Response(data, media_type=media, headers=headers)
