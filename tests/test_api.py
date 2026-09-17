@@ -99,6 +99,20 @@ def test_refresh_signed_url_and_restart(client, monkeypatch, pdf_bytes):
     assert client.get(f'/v1/files/{file_id}/pages/1000/text').status_code == 409
 
 
+def test_reregister_known_file_switches_source_without_download(client, monkeypatch, pdf_bytes):
+    file_id = register(client, sourceId='rappnews:issue:p0', revision='v1')
+    def forbidden(self, source):
+        raise AssertionError('a known file must not be downloaded again')
+        yield
+    monkeypatch.setattr(Cache, 'chunks', forbidden)
+    response = client.post('/v1/files', json={'s3': {'bucket': 'ink-rappnews', 'key': 'issue/0001.pdf'},
+                                           'sourceId': 'rappnews:issue:p0', 'revision': 'v1'})
+    assert response.status_code == 200, response.text
+    assert response.json()['id'] == file_id
+    assert response.json()['pages'] == 1001
+    assert Cache().record(file_id)['source']['s3']['key'] == 'issue/0001.pdf'
+
+
 def test_limits_and_failed_download_cleanup(client, monkeypatch):
     app.state.cache.max_source = 10
     assert client.post('/v1/files', json={'url':'https://example.org/a.pdf'}).status_code == 413

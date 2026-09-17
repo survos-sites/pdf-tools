@@ -77,6 +77,14 @@ def install(app: FastAPI):
                 if e.status_code != 404:
                     raise
                 old = None
+            if old and not source.sha256:
+                # A known file: refresh how its bytes are reached (a new signed URL, or an S3
+                # reference instead of one) without fetching them. The pinned checksum still guards
+                # the next download, when an evicted file is read again. Re-registering 45k
+                # RappNews pages to switch them to S3 otherwise re-downloaded every one.
+                record = {**old, 'source': source.model_dump()}
+                cache.save(file_id, record)
+                return {'id': file_id, 'sha256': record['sha256'], 'bytes': record['bytes'], **record['info']}
             # Refresh credentials without changing identity or already validated bytes.
             path, checksum = cache.acquire(source, old['sha256'] if old else None)
             if source.sha256 and checksum != source.sha256:
