@@ -3,6 +3,8 @@ import json
 import multiprocessing
 import os
 from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures.process import BrokenProcessPool
+import threading
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -20,15 +22,23 @@ from PIL import Image
 from .analysis import digest
 
 
+def new_pool():
+    return ProcessPoolExecutor(max_workers=1, mp_context=multiprocessing.get_context('spawn'))
+
+
 def install(app: FastAPI):
+    pool_lock = threading.Lock()
+
     @asynccontextmanager
     async def lifespan(app):
         app.state.cache = Cache()
         app.state.analysis = AnalysisService()
         # PyMuPDF must not run in the server's thread pool or share open Documents.
-        with ProcessPoolExecutor(max_workers=1, mp_context=multiprocessing.get_context('spawn')) as pool:
-            app.state.pdf_pool = pool
+        app.state.pdf_pool = new_pool()
+        try:
             yield
+        finally:
+            app.state.pdf_pool.shutdown(wait=False, cancel_futures=True)
     app.router.lifespan_context = lifespan
     app.add_middleware(CORSMiddleware, allow_origins=os.getenv('PDFTOOLS_CORS_ORIGINS', '*').split(','),
                        allow_methods=['GET', 'POST'], allow_headers=['Authorization', 'Content-Type'])
@@ -60,12 +70,25 @@ def install(app: FastAPI):
         return await call_next(request)
 
     def run(path, operation, **params):
-        try:
-            return app.state.pdf_pool.submit(execute, str(path), operation, params).result()
-        except IndexError as e:
-            raise HTTPException(404, str(e))
-        except (ValueError, RuntimeError) as e:
-            raise HTTPException(422, str(e))
+        # A render worker that dies (a 40 MP page in a 2 GB container) breaks the whole pool, and a
+        # broken pool refuses every later job. BrokenProcessPool is a RuntimeError, so it used to
+        # come back as a 422 on every image until someone restarted the app (2026-09-18). Replace
+        # the pool and try the job once more; a job that kills it twice is reported, not retried.
+        for attempt in (1, 2):
+            pool = app.state.pdf_pool
+            try:
+                return pool.submit(execute, str(path), operation, params).result()
+            except BrokenProcessPool:
+                with pool_lock:
+                    if app.state.pdf_pool is pool:
+                        app.state.pdf_pool = new_pool()
+                        pool.shutdown(wait=False, cancel_futures=True)
+                if attempt == 2:
+                    raise HTTPException(503, 'The page renderer crashed on this request; try a smaller size.')
+            except IndexError as e:
+                raise HTTPException(404, str(e))
+            except (ValueError, RuntimeError) as e:
+                raise HTTPException(422, str(e))
 
     def register(source):
         cache = app.state.cache
