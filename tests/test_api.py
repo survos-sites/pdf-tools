@@ -211,3 +211,25 @@ def test_blocks_preserve_geometry_and_openapi(client):
     assert '/v1/analysis' in schema['paths']
     assert '/v1/files/{file_id}/pages/{page}/layout' in schema['paths']
     assert schema['paths']['/v1/analysis']['post']['requestBody']
+
+
+def test_broken_render_pool_is_replaced(client, monkeypatch, pdf_bytes):
+    from concurrent.futures.process import BrokenProcessPool
+    file_id = register(client, sourceId='rappnews:issue:p1', revision='v1')
+
+    class DeadPool:
+        def submit(self, *args, **kwargs):
+            raise BrokenProcessPool('A child process terminated abruptly')
+
+        def shutdown(self, **kwargs):
+            pass
+
+    healthy = app.state.pdf_pool
+    app.state.pdf_pool = DeadPool()
+    try:
+        response = client.get(f'/iiif/3/{file_id}~1/full/64,/0/default.jpg')
+        assert response.status_code == 200, response.text
+        assert not isinstance(app.state.pdf_pool, DeadPool)
+    finally:
+        app.state.pdf_pool.shutdown(wait=False, cancel_futures=True)
+        app.state.pdf_pool = healthy
