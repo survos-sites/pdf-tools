@@ -58,6 +58,10 @@ def install(app: FastAPI):
         if path in ('/health', '/demo', '/demo/') or path.startswith('/demo/'):
             return True
 
+        # Documentation and its schema disclose the API, not registered documents.
+        if method in ('GET', 'HEAD') and path in ('/docs', '/docs/oauth2-redirect', '/redoc', '/openapi.json'):
+            return True
+
         return method in ('GET', 'HEAD') and path.startswith('/iiif/')
 
     @app.middleware('http')

@@ -233,3 +233,13 @@ def test_broken_render_pool_is_replaced(client, monkeypatch, pdf_bytes):
     finally:
         app.state.pdf_pool.shutdown(wait=False, cancel_futures=True)
         app.state.pdf_pool = healthy
+
+
+def test_documentation_public_but_operations_protected(client, monkeypatch):
+    monkeypatch.setenv('PDFTOOLS_TOKEN', 'test-docs-secret')
+    for path in ('/docs', '/redoc', '/openapi.json', '/docs/oauth2-redirect'):
+        assert client.get(path).status_code == 200
+    assert client.get('/openapi.json').json()['paths']
+    assert client.post('/v1/files', json={'url': 'https://example.org/a.pdf'}).status_code == 401
+    assert client.get('/v1/files/unregistered/pages/1').status_code == 401
+    assert client.post('/docs').status_code == 401
