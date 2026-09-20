@@ -3,6 +3,8 @@ import json
 import multiprocessing
 import os
 from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures.process import BrokenProcessPool
+import threading
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -20,35 +22,73 @@ from PIL import Image
 from .analysis import digest
 
 
+def new_pool():
+    return ProcessPoolExecutor(max_workers=1, mp_context=multiprocessing.get_context('spawn'))
+
+
 def install(app: FastAPI):
+    pool_lock = threading.Lock()
+
     @asynccontextmanager
     async def lifespan(app):
         app.state.cache = Cache()
         app.state.analysis = AnalysisService()
         # PyMuPDF must not run in the server's thread pool or share open Documents.
-        with ProcessPoolExecutor(max_workers=1, mp_context=multiprocessing.get_context('spawn')) as pool:
-            app.state.pdf_pool = pool
+        app.state.pdf_pool = new_pool()
+        try:
             yield
+        finally:
+            app.state.pdf_pool.shutdown(wait=False, cancel_futures=True)
     app.router.lifespan_context = lifespan
     app.add_middleware(CORSMiddleware, allow_origins=os.getenv('PDFTOOLS_CORS_ORIGINS', '*').split(','),
                        allow_methods=['GET', 'POST'], allow_headers=['Authorization', 'Content-Type'])
+
+    def _public_read(path: str, method: str) -> bool:
+        """Paths served without a bearer token.
+
+        IIIF reads are public because a browser has to fetch them directly: a
+        viewer loads info.json and then tiles from the page itself, so any token
+        guarding them would have to be embedded in the HTML, which is not a
+        token any more. Registration (POST /v1/files) stays authenticated, so
+        nothing can ask this service to fetch a URL of its own choosing — the
+        only renderable documents are ones an authenticated caller registered.
+        A file id is 32 hex characters and is only discoverable from a page that
+        already publishes the image.
+        """
+        if path in ('/health', '/demo', '/demo/') or path.startswith('/demo/'):
+            return True
+
+        return method in ('GET', 'HEAD') and path.startswith('/iiif/')
 
     @app.middleware('http')
     async def authentication(request, call_next):
         import secrets
         token = os.getenv('PDFTOOLS_TOKEN')
-        if token and request.method != 'OPTIONS' and request.url.path not in ('/health', '/demo', '/demo/') and not request.url.path.startswith('/demo/'):
+        if token and request.method != 'OPTIONS' and not _public_read(request.url.path, request.method):
             if not secrets.compare_digest(request.headers.get('authorization', ''), f'Bearer {token}'):
                 return JSONResponse({'detail': 'Bearer token required'}, status_code=401)
         return await call_next(request)
 
     def run(path, operation, **params):
-        try:
-            return app.state.pdf_pool.submit(execute, str(path), operation, params).result()
-        except IndexError as e:
-            raise HTTPException(404, str(e))
-        except (ValueError, RuntimeError) as e:
-            raise HTTPException(422, str(e))
+        # A render worker that dies (a 40 MP page in a 2 GB container) breaks the whole pool, and a
+        # broken pool refuses every later job. BrokenProcessPool is a RuntimeError, so it used to
+        # come back as a 422 on every image until someone restarted the app (2026-09-18). Replace
+        # the pool and try the job once more; a job that kills it twice is reported, not retried.
+        for attempt in (1, 2):
+            pool = app.state.pdf_pool
+            try:
+                return pool.submit(execute, str(path), operation, params).result()
+            except BrokenProcessPool:
+                with pool_lock:
+                    if app.state.pdf_pool is pool:
+                        app.state.pdf_pool = new_pool()
+                        pool.shutdown(wait=False, cancel_futures=True)
+                if attempt == 2:
+                    raise HTTPException(503, 'The page renderer crashed on this request; try a smaller size.')
+            except IndexError as e:
+                raise HTTPException(404, str(e))
+            except (ValueError, RuntimeError) as e:
+                raise HTTPException(422, str(e))
 
     def register(source):
         cache = app.state.cache
@@ -60,6 +100,14 @@ def install(app: FastAPI):
                 if e.status_code != 404:
                     raise
                 old = None
+            if old and not source.sha256:
+                # A known file: refresh how its bytes are reached (a new signed URL, or an S3
+                # reference instead of one) without fetching them. The pinned checksum still guards
+                # the next download, when an evicted file is read again. Re-registering 45k
+                # RappNews pages to switch them to S3 otherwise re-downloaded every one.
+                record = {**old, 'source': source.model_dump()}
+                cache.save(file_id, record)
+                return {'id': file_id, 'sha256': record['sha256'], 'bytes': record['bytes'], **record['info']}
             # Refresh credentials without changing identity or already validated bytes.
             path, checksum = cache.acquire(source, old['sha256'] if old else None)
             if source.sha256 and checksum != source.sha256:
@@ -96,7 +144,10 @@ def install(app: FastAPI):
 
     def reply(file_id, op, request, media='application/json', **params):
         data, etag = operation(file_id, op, **params)
-        headers = {'ETag': f'"{etag}"', 'Cache-Control': 'private, max-age=0, must-revalidate'}
+        # A read is keyed by the source checksum and the request parameters, so a given URL's bytes
+        # never change: cache it hard, in the browser and in front of the service. Purge the CDN if a
+        # source is ever replaced under the same identity (that is what `revision` is for).
+        headers = {'ETag': f'"{etag}"', 'Cache-Control': 'public, max-age=31536000, immutable'}
         if request.headers.get('if-none-match') == headers['ETag']:
             return Response(status_code=304, headers=headers)
         return Response(data, media_type=media, headers=headers)

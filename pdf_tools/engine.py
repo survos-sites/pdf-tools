@@ -118,7 +118,13 @@ def execute(path, operation, params):
             base_h = ch * clip.height/page.rect.height
             if params.get('units', 'pt') == 'pt':
                 base_w, base_h = clip.width*params['nativeDpi']/72, clip.height*params['nativeDpi']/72
-            w, h = dimensions(params['size'], base_w, base_h)
+            if params['size'] == 'max':
+                # IIIF: `max` is the largest size the service allows, so it is capped by
+                # maxArea rather than refused. A 300 dpi broadsheet page is ~32 MP.
+                fit = min(1.0, math.sqrt(params['maxPixels']/(base_w*base_h)), 16000/max(base_w, base_h))
+                w, h = max(1, math.floor(base_w*fit)), max(1, math.floor(base_h*fit))
+            else:
+                w, h = dimensions(params['size'], base_w, base_h)
             if w*h > params['maxPixels'] or max(w, h) > 16000:
                 raise ValueError('Requested image exceeds pixel limit')
             fmt = params['format']

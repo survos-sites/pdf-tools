@@ -139,8 +139,10 @@ mtime eviction. Source handle records survive byte eviction; Symfony can re-regi
 if the entire cache is discarded. Derived artifacts use the content checksum,
 operation version and parameters, so two revisions cannot collide. A derivative hit
 can be served even if source bytes have been evicted. Responses have content ETags
-and conservative `private, max-age=0, must-revalidate` headers. Immutable public CDN
-URLs, HMAC read URLs and S3 derivative write-through are future work.
+and `public, max-age=31536000, immutable` headers: a URL's bytes are fixed by the
+source checksum, operation and parameters, so browsers and a CDN may keep them.
+Replacing a source under the same identity needs a new `revision` (and a CDN purge).
+HMAC read URLs and S3 derivative write-through are future work.
 
 **Initial throughput limit:** a cross-process cache lease serializes downloads and
 cache-miss processing across this cache directory. It protects active files from

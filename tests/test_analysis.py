@@ -75,3 +75,24 @@ def test_worker_preserves_pixel_space(tmp_path):
     assert result['width']==100 and result['height']==200
     assert result['coordinateSpace']=='original-image-pixels'
     assert result['transforms']['analysisToOriginal']==[1,0,0,0,1,0,0,0,1]
+
+
+def test_text_operation_does_not_require_layout_runtime(tmp_path, monkeypatch):
+    monkeypatch.setenv('PDFTOOLS_ANALYSIS_DIR', str(tmp_path/'results'))
+    monkeypatch.setenv('PDFTOOLS_LOCAL_ROOTS', str(tmp_path))
+    image=tmp_path/'blank.png'
+    Image.new('RGB',(100,200),'white').save(image)
+    original_run=subprocess.run
+
+    def without_layout_packages(args, **kwargs):
+        if len(args)>2 and args[1]=='-c' and 'importlib.metadata' in args[2]:
+            # Simulate a read/OCR worker where optional ONNX dependencies are absent.
+            if 'onnxruntime' in ' '.join(args):
+                raise subprocess.CalledProcessError(1,args)
+        return original_run(args,**kwargs)
+
+    monkeypatch.setattr(subprocess,'run',without_layout_packages)
+    request=AnalysisRequest(imagePath=str(image),sha256=hashlib.sha256(image.read_bytes()).hexdigest(),textSource='none',tasks=['text'])
+    result,cached=AnalysisService().analyze(request)
+    assert result['text']=='' and result['blocks']==[]
+    assert cached is False

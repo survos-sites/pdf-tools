@@ -49,7 +49,7 @@ def test_thousand_pages_and_late_page(client):
     assert client.get(f'/v1/files/{file_id}/pages/1002').status_code == 404
 
 
-def test_iiif(client):
+def test_iiif(client, monkeypatch):
     file_id = register(client)
     base = f'/iiif/3/{file_id}~1000'
     info = client.get(base+'/info.json').json()
@@ -60,6 +60,11 @@ def test_iiif(client):
             assert response.status_code == 200, response.text
             assert Image.open(io.BytesIO(response.content)).mode == 'L'
     assert client.get(base+'/full/16000,16000/0/default.jpg').status_code == 422
+    monkeypatch.setenv('PDFTOOLS_MAX_PIXELS', '1000000')
+    response = client.get(base+'/full/max/0/default.jpg')
+    assert response.status_code == 200, response.text
+    w, h = Image.open(io.BytesIO(response.content)).size
+    assert w*h <= 1_000_000 and abs(w/h - 2500/3334) < 0.01
     assert client.get(base+'/full/nan,/0/default.jpg').status_code == 422
     assert client.get('/iiif/3/'+'a'*32+'~1/info.json').status_code == 404
 
@@ -94,6 +99,20 @@ def test_refresh_signed_url_and_restart(client, monkeypatch, pdf_bytes):
     assert client.get(f'/v1/files/{file_id}/pages/1000/text').status_code == 409
 
 
+def test_reregister_known_file_switches_source_without_download(client, monkeypatch, pdf_bytes):
+    file_id = register(client, sourceId='rappnews:issue:p0', revision='v1')
+    def forbidden(self, source):
+        raise AssertionError('a known file must not be downloaded again')
+        yield
+    monkeypatch.setattr(Cache, 'chunks', forbidden)
+    response = client.post('/v1/files', json={'s3': {'bucket': 'ink-rappnews', 'key': 'issue/0001.pdf'},
+                                           'sourceId': 'rappnews:issue:p0', 'revision': 'v1'})
+    assert response.status_code == 200, response.text
+    assert response.json()['id'] == file_id
+    assert response.json()['pages'] == 1001
+    assert Cache().record(file_id)['source']['s3']['key'] == 'issue/0001.pdf'
+
+
 def test_limits_and_failed_download_cleanup(client, monkeypatch):
     app.state.cache.max_source = 10
     assert client.post('/v1/files', json={'url':'https://example.org/a.pdf'}).status_code == 413
@@ -117,6 +136,19 @@ def test_auth_and_source_validation(client, monkeypatch):
     assert client.get('/health').status_code == 200
     assert client.post('/v1/files', json={'url':'https://example.org/a.pdf'},
                        headers={'Authorization':'Bearer secret'}).status_code == 200
+
+
+def test_iiif_reads_are_public_but_writes_are_not(client, monkeypatch):
+    # A viewer fetches info.json and tiles from the browser, so a token guarding
+    # them would have to ship in the page. Reads are public; registration is not,
+    # which is what keeps this service from being asked to fetch arbitrary URLs.
+    file_id = client.post('/v1/files', json={'url':'https://example.org/a.pdf'}).json()['id']
+    monkeypatch.setenv('PDFTOOLS_TOKEN', 'secret')
+
+    assert client.get(f'/iiif/3/{file_id}~1/info.json').status_code == 200
+    assert client.get(f'/iiif/3/{file_id}/manifest.json').status_code == 200
+    assert client.post('/v1/files', json={'url':'https://example.org/a.pdf'}).status_code == 401
+    assert client.get(f'/v1/files/{file_id}/pages/1').status_code == 401
 
 
 def test_rejects_private_sources(tmp_path):
@@ -179,3 +211,25 @@ def test_blocks_preserve_geometry_and_openapi(client):
     assert '/v1/analysis' in schema['paths']
     assert '/v1/files/{file_id}/pages/{page}/layout' in schema['paths']
     assert schema['paths']['/v1/analysis']['post']['requestBody']
+
+
+def test_broken_render_pool_is_replaced(client, monkeypatch, pdf_bytes):
+    from concurrent.futures.process import BrokenProcessPool
+    file_id = register(client, sourceId='rappnews:issue:p1', revision='v1')
+
+    class DeadPool:
+        def submit(self, *args, **kwargs):
+            raise BrokenProcessPool('A child process terminated abruptly')
+
+        def shutdown(self, **kwargs):
+            pass
+
+    healthy = app.state.pdf_pool
+    app.state.pdf_pool = DeadPool()
+    try:
+        response = client.get(f'/iiif/3/{file_id}~1/full/64,/0/default.jpg')
+        assert response.status_code == 200, response.text
+        assert not isinstance(app.state.pdf_pool, DeadPool)
+    finally:
+        app.state.pdf_pool.shutdown(wait=False, cancel_futures=True)
+        app.state.pdf_pool = healthy
